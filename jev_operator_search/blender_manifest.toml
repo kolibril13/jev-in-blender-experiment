@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "jev_operator_search"
-version = "0.1.0"
+version = "0.2.0"
 name = "Jev Operator Search"
 tagline = "Describe what you want to do, get the Blender operator"
 maintainer = "Jan-Hendrik Müller"
