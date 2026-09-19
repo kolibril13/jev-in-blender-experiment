@@ -1,0 +1,15 @@
+schema_version = "1.0.0"
+
+id = "jev_operator_search"
+version = "0.1.0"
+name = "Jev Operator Search"
+tagline = "Describe what you want to do, get the Blender operator"
+maintainer = "Jan-Hendrik Müller"
+type = "add-on"
+
+blender_version_min = "4.2.0"
+license = ["SPDX:MIT"]
+tags = ["User Interface"]
+
+[permissions]
+network = "Sends your search text and a short context summary to api.typesafe.ai to rank operators"
