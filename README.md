@@ -1,5 +1,10 @@
 # Jev in Blender — operator search
 
+# Installation Demo video
+
+https://github.com/user-attachments/assets/8ce5a91a-7560-40e9-8405-093acc9ca457
+
+
 A Blender extension (4.2+) that adds a **Jev** tab to the 3D Viewport sidebar (`N`).
 Type what you want to do in plain language, press Enter, and
 [TypeSafe's Jev](https://docs.typesafe.ai) ranks every registered `bpy.ops` operator
