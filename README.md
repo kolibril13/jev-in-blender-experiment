@@ -1,5 +1,13 @@
 # Jev in Blender — operator search
 
+# Demo how it works
+
+
+
+https://github.com/user-attachments/assets/ac1dfeca-014c-4dd9-9948-7d12fc098114
+
+
+
 # Installation Demo video
 
 https://github.com/user-attachments/assets/8ce5a91a-7560-40e9-8405-093acc9ca457
