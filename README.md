@@ -51,8 +51,14 @@ ln -s "$PWD/jev_operator_search" \
 
 Then in Blender: *Edit › Preferences › Get Extensions › ⌄ › Refresh Local*, enable
 **Jev Operator Search**, and paste your API key
-(<https://console.typesafe.ai/>) into its preferences. The `TYPESAFE_API_KEY`
-environment variable is used as a fallback.
+(<https://console.typesafe.ai/>) into its preferences.
+
+The key is saved as soon as you confirm the field and is read back the next time
+Blender starts — no *Save Preferences* needed. It is written to `config.json`
+(mode `600`) in the extension's own user directory rather than to
+`userpref.blend`, so it also survives reinstalling the extension. Clearing the
+field deletes that file. The `TYPESAFE_API_KEY` environment variable is used as
+a fallback when no key is stored.
 
 To build a distributable zip: `blender --command extension build --source-dir jev_operator_search`.
 
@@ -68,4 +74,5 @@ blender -b --factory-startup --python scripts/test_search.py -- "bevel the selec
 - `jev_operator_search/jev_api.py` — tiny `urllib` client for `POST /v1/systemone`
 - `jev_operator_search/catalog.py` — scans `bpy.ops`, module descriptions
 - `jev_operator_search/search.py` — the two-stage ranking
+- `jev_operator_search/config.py` — stores the API key across Blender sessions
 - `jev_operator_search/__init__.py` — panel, operators, preferences, worker thread

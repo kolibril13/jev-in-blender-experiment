@@ -15,6 +15,7 @@ from bpy.props import BoolProperty, CollectionProperty, EnumProperty, FloatPrope
 from bpy.types import AddonPreferences, Operator, Panel, PropertyGroup
 
 from . import catalog as cat
+from . import config as jev_config
 from . import search as jev_search
 from . import jev_api
 from .jev_api import JevError
@@ -93,7 +94,11 @@ def _prefs(context):
 
 
 def _api_key(context):
-    return _prefs(context).api_key or os.environ.get("TYPESAFE_API_KEY", "")
+    return (
+        _prefs(context).api_key.strip()
+        or jev_config.load_api_key()
+        or os.environ.get("TYPESAFE_API_KEY", "")
+    )
 
 
 def start_search(context):
@@ -154,13 +159,41 @@ class JevSearchProps(PropertyGroup):
     results: CollectionProperty(type=JevResultItem)
 
 
+# Set while the stored key is being written back into the preferences, so the
+# assignment doesn't bounce straight back out to disk.
+_restoring_api_key = False
+
+
+def _on_api_key_update(self, context):
+    if not _restoring_api_key:
+        jev_config.save_api_key(self.api_key.strip())
+
+
+def _restore_api_key():
+    """Put the key saved by a previous session back into the preferences."""
+    global _restoring_api_key
+    addon = bpy.context.preferences.addons.get(__package__)
+    if addon is None:
+        return 0.5  # preferences not ready yet — try again shortly
+    if not addon.preferences.api_key:
+        stored = jev_config.load_api_key()
+        if stored:
+            _restoring_api_key = True
+            try:
+                addon.preferences.api_key = stored
+            finally:
+                _restoring_api_key = False
+    return None
+
+
 class JevPreferences(AddonPreferences):
     bl_idname = __package__
 
     api_key: StringProperty(
         name="TypeSafe API key",
-        description="From https://console.typesafe.ai/ — falls back to the TYPESAFE_API_KEY environment variable",
+        description="From https://console.typesafe.ai/ — saved for future sessions; falls back to the TYPESAFE_API_KEY environment variable",
         subtype="PASSWORD",
+        update=_on_api_key_update,
     )
     model: StringProperty(name="Model", default="jev-latest")
     top_modules: IntProperty(
@@ -363,9 +396,14 @@ def register():
     for c in classes:
         bpy.utils.register_class(c)
     bpy.types.WindowManager.jev_search = bpy.props.PointerProperty(type=JevSearchProps)
+    # Deferred: during startup the add-on's preferences don't exist yet when
+    # register() runs.
+    bpy.app.timers.register(_restore_api_key, first_interval=0.0)
 
 
 def unregister():
+    if bpy.app.timers.is_registered(_restore_api_key):
+        bpy.app.timers.unregister(_restore_api_key)
     if bpy.app.timers.is_registered(_poll_results):
         bpy.app.timers.unregister(_poll_results)
     del bpy.types.WindowManager.jev_search
